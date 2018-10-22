@@ -1,0 +1,22 @@
+<?php
+
+
+function tripal_bipaa_ui_menu() {
+    $items = array();
+
+    $items['heatmap'] = array(
+        'page callback' => 'render_expression_blocks',
+        'access arguments' => array('access content'),
+        'type' => MENU_CALLBACK,
+     );
+
+    return $items;
+}
+
+function render_expression_blocks() {
+        $blockObjectInput = block_load('tripal_analysis_expression', 'input_features');
+        $blockObjectView = block_load('tripal_analysis_expression', 'heatmap_features');
+        $block = _block_get_renderable_array(_block_render_blocks(array($blockObjectInput, $blockObjectView)));
+        $output = drupal_render($block);
+        return $output;
+}

@@ -1,0 +1,3 @@
+name = Tripal bipaa ui
+description = Add a page with the Heatmap block from the tripal_analysis_expression module in /heatmap
+core = 7.x
