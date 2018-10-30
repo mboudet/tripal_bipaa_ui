@@ -15,7 +15,7 @@ function tripal_bipaa_ui_install() {
     // Orga accession id : 1333
       $update = "organism/[taxrank__genus]/[taxrank__species]";
       $type = 'alias';
-      $bundle = get_bundle_id($1333);
+      $bundle = get_bundle_id("1333");
       $args = array(
         'bundle_id' => $bundle->name,
         'update' => $update,
@@ -28,7 +28,7 @@ function tripal_bipaa_ui_install() {
         'tripal_update_all_urls_and_titles', $args, $user->uid, 10, $includes);
 };
 
-function get_bundle_id($entity_name){
+function get_bundle_id($accession_id){
   $term = tripal_load_term_entity(array('vocabulary' => 'EDAM', 'accession' =>$accession_id));
   $bundle = tripal_load_bundle_entity(array('term_id' => $term->id));
   return $bundle;
