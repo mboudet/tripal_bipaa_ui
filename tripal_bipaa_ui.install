@@ -23,6 +23,7 @@ function tripal_bipaa_ui_install() {
     $includes = array(
       module_load_include('inc', 'tripal', 'includes/tripal.bulk_update'),
     );
+    echo($args);
     // Get admin UID?
     tripal_add_job('Update all aliases for content type: ' . $bundle->label, 'tripal',
         'tripal_update_all_urls_and_titles', $args, 1, 10, $includes);
