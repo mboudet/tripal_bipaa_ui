@@ -14,22 +14,22 @@ function tripal_bipaa_ui_install() {
     // Needs to setup the various aliases here
     $update = "organism/[taxrank__genus]/[taxrank__species]";
     $type = 'alias';
-    $bundle = get_bundle("organism");
+    $bundle_id = get_bundle("organism");
     $args = array(
-        'bundle_id' => $bundle->id,
+        'bundle_id' => $bundle_id,
         'update' => $update,
         'type' => $type
     );
     $includes = array(
       module_load_include('inc', 'tripal', 'includes/tripal.bulk_update'),
     );
-    echo($args);
     // Get admin UID?
-    tripal_add_job('Update all aliases for content type: ' . $bundle->label, 'tripal',
+    var_dump($args);
+    tripal_add_job('Update all aliases for content type: organism', 'tripal',
         'tripal_update_all_urls_and_titles', $args, 1, 10, $includes);
 };
 
-function get_bundle($entity_name){
+function get_bundle_id($entity_name){
 
     # Get bundle ID from chado_bundle
 
@@ -38,8 +38,5 @@ function get_bundle($entity_name){
       ->condition('data_table', $entity_name)
       ->execute()->fetchField();
 
-    # Get bundle
-
-    $bundle = tripal_load_bundle_entity(['id' => $bundle_id]);
-    return $bundle;
+    return "bio_data_" . $bundle_id
 }
