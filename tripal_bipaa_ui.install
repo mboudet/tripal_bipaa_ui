@@ -14,7 +14,7 @@ function tripal_bipaa_ui_install() {
     // Needs to setup the various aliases here
     $update = "organism/[taxrank__genus]/[taxrank__species]";
     $type = 'alias';
-    $bundle_id = get_bundle("organism");
+    $bundle_id = get_bundle_id("organism");
     $args = array(
         'bundle_id' => $bundle_id,
         'update' => $update,
