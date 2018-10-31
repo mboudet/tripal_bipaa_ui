@@ -21,6 +21,7 @@ function tripal_bipaa_ui_install() {
     );
 
     tripal_set_bundle_variable('url_format', $bundle_id, $update);
+    drupal_clear_path_cache();
 
 };
 
