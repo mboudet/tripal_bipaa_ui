@@ -15,18 +15,13 @@ function tripal_bipaa_ui_install() {
     $update = "organism/[taxrank__genus]/[taxrank__species]";
     $type = 'alias';
     $bundle_id = get_bundle_id("organism");
-    $args = array(
-        'bundle_id' => $bundle_id,
-        'update' => $update,
-        'type' => $type
-    );
+
     $includes = array(
-      module_load_include('inc', 'tripal', 'includes/tripal.bulk_update'),
+      module_load_include('inc', 'tripal', 'includes/TripalBundleUIController.inc'),
     );
-    // Get admin UID?
-    var_dump($args);
-    tripal_add_job('Update all aliases for content type: organism', 'tripal',
-        'tripal_update_all_urls_and_titles', $args, 1, 10, $includes);
+
+    tripal_set_bundle_variable('url_format', $bundle_id, $update);
+
 };
 
 function get_bundle_id($entity_name){
