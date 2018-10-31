@@ -33,5 +33,5 @@ function get_bundle_id($entity_name){
       ->condition('data_table', $entity_name)
       ->execute()->fetchField();
 
-    return "bio_data_" . $bundle_id;
+    return $bundle_id;
 }
