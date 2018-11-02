@@ -40,7 +40,7 @@ function get_bundle_id($entity_name){
     // Get term ID from tripal_term
     // Get bundle id from tripal_bundle
 
-    $query = db_select('public.chado_bundle', 'tb');
+    $query = db_select('public.tripal_bundle', 'tb');
     $query->join('tripal_term', 'tt', 'tt.id = tb.term_id');
     $bundle_id = $query->fields('tb', ['id'])
       ->condition('tt.name', $entity_name)
