@@ -11,27 +11,39 @@
 
 
 function tripal_bipaa_ui_install() {
-    // Needs to setup the various aliases here
-    $update = "organism/[taxrank__genus]/[taxrank__species]";
-    $type = 'alias';
-    $bundle_id = get_bundle_id("organism");
+    // Setup a dict to iterate. Need to use the name from tripal_term DB, so mind the caps on some terms.
+
+    // TEMP: need to setup at least an alias and refresh path cache (bug fix)
+
+    $aliases = array(
+        "organism" => "organism/[taxrank__genus]/[taxrank__species]",
+        "mRNA" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[data__identifier]",
+        "Analysis" => "analysis/[TripalEntity__entity_id]",
+        "gene" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[data__identifier]",
+    );
 
     $includes = array(
       module_load_include('inc', 'tripal', 'includes/TripalBundleUIController.inc'),
     );
 
-    tripal_set_bundle_variable('url_format', $bundle_id, $update);
+    foreach ( $aliases as $key => $value){
+        $bundle_id = get_bundle_id($key);
+        tripal_set_bundle_variable('url_format', $bundle_id, $value);
+    };
+
     drupal_clear_path_cache();
 
 };
 
 function get_bundle_id($entity_name){
 
-    # Get bundle ID from chado_bundle
+    // Get term ID from tripal_term
+    // Get bundle id from tripal_bundle
 
-    $bundle_id = db_select('public.chado_bundle', 'CB')
-      ->fields('CB', ['bundle_id'])
-      ->condition('data_table', $entity_name)
+    $bundle_id = db_select('public.chado_bundle', 'tb')
+      ->join('tripal_term', 'tt', tt.id = tb.term_id)
+      ->fields('tb', ['id'])
+      ->condition('tt.name', $entity_name)
       ->execute()->fetchField();
 
     return $bundle_id;
