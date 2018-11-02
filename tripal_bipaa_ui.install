@@ -17,9 +17,9 @@ function tripal_bipaa_ui_install() {
 
     $aliases = array(
         "organism" => "organism/[taxrank__genus]/[taxrank__species]",
-        "mRNA" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[data__identifier]",
+        "mRNA" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[schema__name]",
         "Analysis" => "analysis/[TripalEntity__entity_id]",
-        "gene" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[data__identifier]",
+        "gene" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[schema__name]",
     );
 
     $includes = array(
