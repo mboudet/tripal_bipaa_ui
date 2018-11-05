@@ -53,8 +53,8 @@ function get_bundle_id($entity_name){
 function setup_alias(){
     // Needs to create an alias manually
     $path = array(
-        "source" => "home",
-        "alias" => "cv/lookup"
+        "source" => "cv/lookup",
+        "alias" => "home"
     );
     path_save($path);
     // Might need to delete it if it works
