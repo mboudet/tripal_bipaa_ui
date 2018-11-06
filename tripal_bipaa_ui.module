@@ -77,6 +77,63 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
         3 => 0,
     );
 
+    // Analysis
+    $handler = $views['Analysis_search'];
+
+    //Cleanup
+
+    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+    unset($handler->display['default']->display_options['fields']['schema__description']);
+    unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
+    // Set up results without input
+    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
+
+        /* Field: Analysis: Data Source Name */
+    $handler->display['default']->display_options['fields']['local__source_data.schema:name']['id'] = 'local__source_data.schema:name';
+    $handler->display['default']->display_options['fields']['local__source_data.schema:name']['table'] = 'operation__2945';
+    $handler->display['default']->display_options['fields']['local__source_data.schema:name']['field'] = 'local__source_data.schema:name';
+    $handler->display['default']->display_options['fields']['local__source_data.schema:name']['label'] = 'Source Name';
+
+    /* Field: Analysis: Program, Pipeline, Workflow or Method Name */
+    $handler->display['default']->display_options['fields']['swo__software']['id'] = 'swo__software';
+    $handler->display['default']->display_options['fields']['swo__software']['table'] = 'operation__2945';
+    $handler->display['default']->display_options['fields']['swo__software']['field'] = 'swo__software';
+    $handler->display['default']->display_options['fields']['swo__software']['label'] = 'Program';
+
+    /* Filter criterion: Analysis: Program, Pipeline, Workflow or Method Name */
+    $handler->display['default']->display_options['filters']['swo__software']['id'] = 'swo__software';
+    $handler->display['default']->display_options['filters']['swo__software']['table'] = 'operation__2945';
+    $handler->display['default']->display_options['filters']['swo__software']['field'] = 'swo__software';
+    $handler->display['default']->display_options['filters']['swo__software']['operator'] = 'contains';
+    $handler->display['default']->display_options['filters']['swo__software']['group'] = 1;
+    $handler->display['default']->display_options['filters']['swo__software']['exposed'] = TRUE;
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['operator_id'] = 'swo__software_op';
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['label'] = 'Program';
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['operator'] = 'swo__software_op';
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['identifier'] = 'swo__software';
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['remember_roles'] = array(
+      2 => '2',
+      1 => 0,
+      3 => 0,
+    );
+
+    /* Filter criterion: Analysis: Data Source Name */
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['id'] = 'local__source_data.schema:name';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['table'] = 'operation__2945';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['field'] = 'local__source_data.schema:name';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['operator'] = 'contains';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['group'] = 1;
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['exposed'] = TRUE;
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['operator_id'] = 'local__source_data_schema:name_op';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['label'] = 'Data Source Name';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['operator'] = 'local__source_data_schema:name_op';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['identifier'] = 'local__source_data_schema:name';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['remember_roles'] = array(
+      2 => '2',
+      1 => 0,
+      3 => 0,
+    );
+
 };
 
 
