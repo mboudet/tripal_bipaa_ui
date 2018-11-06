@@ -20,3 +20,63 @@ function render_expression_blocks() {
         $output = drupal_render($block);
         return $output;
 }
+
+
+function tripal_bipaa_ui_views_default_views_alter(&$views) {
+
+    $handler = $views['Organism_search'];
+
+    //Cleanup
+
+    unset($handler->display['default']->display_options['fields']['schema__description']);
+    unset($handler->display['default']->display_options['fields']['data__image']);
+    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+    unset($handler->display['default']->display_options['fields']['taxrank__species']['alter']['make_link']);
+    unset($handler->display['default']->display_options['fields']['taxrank__genus']['alter']['make_link']);
+    unset($handler->display['default']->display_options['fields']['taxrank__genus']['alter']['path']);
+    unset($handler->display['default']->display_options['fields']['taxrank__genus']['alter']['path']);
+
+    // Set up results without input
+    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
+
+    //Setup columns
+
+    // Scientific name field
+    $handler->display['default']->display_options['fields']['nothing']['id'] = 'nothing';
+    $handler->display['default']->display_options['fields']['nothing']['table'] = 'views';
+    $handler->display['default']->display_options['fields']['nothing']['field'] = 'nothing';
+    $handler->display['default']->display_options['fields']['nothing']['label'] = 'Scientific Name';
+    $handler->display['default']->display_options['fields']['nothing']['alter']['text'] = '[taxrank__genus]  [taxrank__species]';
+    $handler->display['default']->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+    $handler->display['default']->display_options['fields']['nothing']['alter']['path'] = "organism/[taxrank__genus]/[taxrank__species]";
+
+    /* Field: Organism: Common Name */
+    $handler->display['default']->display_options['fields']['ncbitaxon__common_name']['id'] = 'ncbitaxon__common_name';
+    $handler->display['default']->display_options['fields']['ncbitaxon__common_name']['table'] = 'OBI__0100026';
+    $handler->display['default']->display_options['fields']['ncbitaxon__common_name']['field'] = 'ncbitaxon__common_name';
+
+    /* Field: Organism: Abbreviation */
+    $handler->display['default']->display_options['fields']['local__abbreviation']['id'] = 'local__abbreviation';
+    $handler->display['default']->display_options['fields']['local__abbreviation']['table'] = 'OBI__0100026';
+    $handler->display['default']->display_options['fields']['local__abbreviation']['field'] = 'local__abbreviation';
+
+    // Setup filters
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['id'] = 'ncbitaxon__common_name';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['table'] = 'OBI__0100026';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['field'] = 'ncbitaxon__common_name';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['operator'] = 'contains';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['exposed'] = TRUE;
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['operator_id'] = 'ncbitaxon__common_name_op';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['label'] = 'Common Name';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['use_operator'] = TRUE;
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['operator'] = 'ncbitaxon__common_name_op';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['identifier'] = 'ncbitaxon__common_name';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['remember_roles'] = array(
+        2 => '2',
+        1 => 0,
+        3 => 0,
+    );
+
+};
+
+
