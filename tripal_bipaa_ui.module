@@ -1,6 +1,10 @@
 <?php
 
 
+/**
+* Implements hook_menu().
+*/
+
 function tripal_bipaa_ui_menu() {
     $items = array();
 
@@ -22,19 +26,39 @@ function render_expression_blocks() {
 }
 
 
+/**
+* Implements hook_views_api()
+*/
+
+function tripal_test_views_api(){
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'tripal_test') . '/views'
+  );
+}
+
+/**
+* Implements hook_views_default_views_alter((&$views).
+*/
+
 function tripal_bipaa_ui_views_default_views_alter(&$views) {
+/Starts with organism
 
     $handler = $views['Organism_search'];
 
     //Cleanup
 
+    // Removed unneeded columns
     unset($handler->display['default']->display_options['fields']['schema__description']);
     unset($handler->display['default']->display_options['fields']['data__image']);
+    // Removed footer (data download option)
     unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+    // Remove links in Genus Species columns
     unset($handler->display['default']->display_options['fields']['taxrank__species']['alter']['make_link']);
     unset($handler->display['default']->display_options['fields']['taxrank__genus']['alter']['make_link']);
-    unset($handler->display['default']->display_options['fields']['taxrank__genus']['alter']['path']);
-    unset($handler->display['default']->display_options['fields']['taxrank__genus']['alter']['path']);
+    // Remove user operator choice
+    unset($handler->display['default']->display_options['filters']['taxrank__species']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['taxrank__genus']['expose']['use_operator']);
 
     // Set up results without input
     $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
@@ -60,7 +84,7 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
     $handler->display['default']->display_options['fields']['local__abbreviation']['table'] = 'OBI__0100026';
     $handler->display['default']->display_options['fields']['local__abbreviation']['field'] = 'local__abbreviation';
 
-    // Setup filters
+    // Setup filters (Common name)
     $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['id'] = 'ncbitaxon__common_name';
     $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['table'] = 'OBI__0100026';
     $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['field'] = 'ncbitaxon__common_name';
@@ -68,7 +92,6 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
     $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['exposed'] = TRUE;
     $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['operator_id'] = 'ncbitaxon__common_name_op';
     $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['label'] = 'Common Name';
-    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['use_operator'] = TRUE;
     $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['operator'] = 'ncbitaxon__common_name_op';
     $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['identifier'] = 'ncbitaxon__common_name';
     $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['remember_roles'] = array(
@@ -76,6 +99,7 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
         1 => 0,
         3 => 0,
     );
+
 
     // Analysis
     $handler = $views['Analysis_search'];

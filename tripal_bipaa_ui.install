@@ -31,7 +31,9 @@ function tripal_bipaa_ui_install() {
         $bundle_id = get_bundle_id($key);
         tripal_set_bundle_variable('url_format', $bundle_id, $value);
     };
-    setup_alias();
+    setup_alias("data_search/organism", "chado/organism");
+    setup_alias("data_search/analysis", "chado/analysis")
+
 
 };
 
@@ -50,12 +52,11 @@ function get_bundle_id($entity_name){
 }
 
 
-function setup_alias(){
+function setup_alias($source,$path){
     // Needs to create an alias manually
     $path = array(
-        "source" => "cv/lookup",
-        "alias" => "home"
+        "source" => $source,
+        "alias" => $path
     );
     path_save($path);
-    // Might need to delete it if it works
 }
