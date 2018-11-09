@@ -27,17 +27,6 @@ function render_expression_blocks() {
 
 
 /**
-* Implements hook_views_api()
-*/
-
-function tripal_test_views_api(){
-  return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'tripal_test') . '/views'
-  );
-}
-
-/**
 * Implements hook_views_default_views_alter((&$views).
 */
 
@@ -157,6 +146,18 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
       1 => 0,
       3 => 0,
     );
+
+
+    //mRNA
+
+
+
+
+
+
+
+    //Polypeptide
+    
 
 };
 

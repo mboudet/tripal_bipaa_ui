@@ -12,7 +12,21 @@
 
 function tripal_bipaa_ui_install() {
 
-    // TEMP: need to setup at least an alias and refresh path cache (temp bug fix)
+    // Need to create the polypeptide type..
+
+    $args = array(
+        "vocabulary" => "SO",
+        "accession" => "0000104",
+        "term_name" => "polypeptide",
+        "storage_args" => array(
+            "data_table" => "feature",
+            "type_column" => "type_id"
+        )
+    );
+
+    tripal_create_bundle($args);
+
+    // TEMP: need to setup at least an alias (temp bug fix)
     // Dict key needs to be in tripal_term
     // Some links are malformed.. variable not set?
 
@@ -21,6 +35,7 @@ function tripal_bipaa_ui_install() {
         "mRNA" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[schema__name]",
         "Analysis" => "analysis/[TripalEntity__entity_id]",
         "gene" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[schema__name]",
+        "polypeptide" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[schema__name]"
     );
 
     $includes = array(
@@ -32,9 +47,7 @@ function tripal_bipaa_ui_install() {
         tripal_set_bundle_variable('url_format', $bundle_id, $value);
     };
     setup_alias("data_search/organism", "chado/organism");
-    setup_alias("data_search/analysis", "chado/analysis")
-
-
+    setup_alias("data_search/analysis", "chado/analysis");
 };
 
 function get_bundle_id($entity_name){
