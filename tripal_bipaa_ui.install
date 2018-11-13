@@ -48,6 +48,9 @@ function tripal_bipaa_ui_install() {
     };
     setup_alias("data_search/organism", "chado/organism");
     setup_alias("data_search/analysis", "chado/analysis");
+    setup_alias("data_search/polypeptide", "chado/polypeptide");
+    setup_alias("data_search/mrna", "chado/mrna");
+
 };
 
 function get_bundle_id($entity_name){

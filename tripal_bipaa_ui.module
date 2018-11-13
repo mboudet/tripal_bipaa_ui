@@ -31,7 +31,7 @@ function render_expression_blocks() {
 */
 
 function tripal_bipaa_ui_views_default_views_alter(&$views) {
-/Starts with organism
+    //Starts with organism
 
     $handler = $views['Organism_search'];
 
@@ -149,16 +149,40 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
 
 
     //mRNA
+    $handler = $views['mRNA_search'];
+    //Cleanup
+    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+    unset($handler->display['default']->display_options['fields']['data__accession']);
+    unset($handler->display['default']->display_options['fields']['schema__alternate_name']);
+    unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['data__identifier']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['data__accession']);
+    unset($handler->display['default']->display_options['filters']['obi__organism'']['expose']['use_operator']);
 
-
-
-
-
+    // Set up results without input
+    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
+    // Change field name
+    $handler->display['default']->display_options['filters']['data__identifier']['expose']['label'] = 'Unique Name';
+    $handler->display['default']->display_options['fields']['data__identifier']['label'] = 'Unique Name';
 
 
     //Polypeptide
-    
+    $handler = $views['Polypeptide_search'];
+    //Cleanup
+    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+    unset($handler->display['default']->display_options['fields']['data__accession']);
+    unset($handler->display['default']->display_options['fields']['schema__alternate_name']);
+    unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['data__identifier']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['data__accession']);
+    unset($handler->display['default']->display_options['filters']['obi__organism'']['expose']['use_operator']);
 
+    // Set up results without input
+    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
+    // Change field name
+    $handler->display['default']->display_options['filters']['data__identifier']['expose']['label'] = 'Unique Name';
+    $handler->display['default']->display_options['fields']['data__identifier']['label'] = 'Unique Name';
+    
 };
 
 
