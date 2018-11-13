@@ -157,7 +157,7 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
     unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
     unset($handler->display['default']->display_options['filters']['data__identifier']['expose']['use_operator']);
     unset($handler->display['default']->display_options['filters']['data__accession']);
-    unset($handler->display['default']->display_options['filters']['obi__organism'']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['obi__organism']['expose']['use_operator']);
 
     // Set up results without input
     $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
@@ -175,7 +175,7 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
     unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
     unset($handler->display['default']->display_options['filters']['data__identifier']['expose']['use_operator']);
     unset($handler->display['default']->display_options['filters']['data__accession']);
-    unset($handler->display['default']->display_options['filters']['obi__organism'']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['obi__organism']['expose']['use_operator']);
 
     // Set up results without input
     $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
