@@ -27,6 +27,7 @@ function tripal_bipaa_ui_install() {
     tripal_create_bundle($args);
 
     // TEMP: need to setup at least an alias (temp bug fix)
+    // https://github.com/tripal/tripal/issues/727
     // Dict key needs to be in tripal_term
     // Some links are malformed.. variable not set?
 
