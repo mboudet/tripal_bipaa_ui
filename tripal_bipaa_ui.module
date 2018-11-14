@@ -1,6 +1,10 @@
 <?php
 
 
+/**
+* Implements hook_menu().
+*/
+
 function tripal_bipaa_ui_menu() {
     $items = array();
 
@@ -20,3 +24,165 @@ function render_expression_blocks() {
         $output = drupal_render($block);
         return $output;
 }
+
+
+/**
+* Implements hook_views_default_views_alter((&$views).
+*/
+
+function tripal_bipaa_ui_views_default_views_alter(&$views) {
+    //Starts with organism
+
+    $handler = $views['Organism_search'];
+
+    //Cleanup
+
+    // Removed unneeded columns
+    unset($handler->display['default']->display_options['fields']['schema__description']);
+    unset($handler->display['default']->display_options['fields']['data__image']);
+    // Removed footer (data download option)
+    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+    // Remove links in Genus Species columns
+    unset($handler->display['default']->display_options['fields']['taxrank__species']['alter']['make_link']);
+    unset($handler->display['default']->display_options['fields']['taxrank__genus']['alter']['make_link']);
+    // Remove user operator choice
+    unset($handler->display['default']->display_options['filters']['taxrank__species']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['taxrank__genus']['expose']['use_operator']);
+
+    // Set up results without input
+    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
+
+    //Setup columns
+
+    // Scientific name field
+    $handler->display['default']->display_options['fields']['nothing']['id'] = 'nothing';
+    $handler->display['default']->display_options['fields']['nothing']['table'] = 'views';
+    $handler->display['default']->display_options['fields']['nothing']['field'] = 'nothing';
+    $handler->display['default']->display_options['fields']['nothing']['label'] = 'Scientific Name';
+    $handler->display['default']->display_options['fields']['nothing']['alter']['text'] = '[taxrank__genus]  [taxrank__species]';
+    $handler->display['default']->display_options['fields']['nothing']['alter']['make_link'] = TRUE;
+    $handler->display['default']->display_options['fields']['nothing']['alter']['path'] = "organism/[taxrank__genus]/[taxrank__species]";
+
+    /* Field: Organism: Common Name */
+    $handler->display['default']->display_options['fields']['ncbitaxon__common_name']['id'] = 'ncbitaxon__common_name';
+    $handler->display['default']->display_options['fields']['ncbitaxon__common_name']['table'] = 'OBI__0100026';
+    $handler->display['default']->display_options['fields']['ncbitaxon__common_name']['field'] = 'ncbitaxon__common_name';
+
+    /* Field: Organism: Abbreviation */
+    $handler->display['default']->display_options['fields']['local__abbreviation']['id'] = 'local__abbreviation';
+    $handler->display['default']->display_options['fields']['local__abbreviation']['table'] = 'OBI__0100026';
+    $handler->display['default']->display_options['fields']['local__abbreviation']['field'] = 'local__abbreviation';
+
+    // Setup filters (Common name)
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['id'] = 'ncbitaxon__common_name';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['table'] = 'OBI__0100026';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['field'] = 'ncbitaxon__common_name';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['operator'] = 'contains';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['exposed'] = TRUE;
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['operator_id'] = 'ncbitaxon__common_name_op';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['label'] = 'Common Name';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['operator'] = 'ncbitaxon__common_name_op';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['identifier'] = 'ncbitaxon__common_name';
+    $handler->display['default']->display_options['filters']['ncbitaxon__common_name']['expose']['remember_roles'] = array(
+        2 => '2',
+        1 => 0,
+        3 => 0,
+    );
+
+
+    // Analysis
+    $handler = $views['Analysis_search'];
+
+    //Cleanup
+
+    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+    unset($handler->display['default']->display_options['fields']['schema__description']);
+    unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
+    // Set up results without input
+    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
+
+        /* Field: Analysis: Data Source Name */
+    $handler->display['default']->display_options['fields']['local__source_data.schema:name']['id'] = 'local__source_data.schema:name';
+    $handler->display['default']->display_options['fields']['local__source_data.schema:name']['table'] = 'operation__2945';
+    $handler->display['default']->display_options['fields']['local__source_data.schema:name']['field'] = 'local__source_data.schema:name';
+    $handler->display['default']->display_options['fields']['local__source_data.schema:name']['label'] = 'Source Name';
+
+    /* Field: Analysis: Program, Pipeline, Workflow or Method Name */
+    $handler->display['default']->display_options['fields']['swo__software']['id'] = 'swo__software';
+    $handler->display['default']->display_options['fields']['swo__software']['table'] = 'operation__2945';
+    $handler->display['default']->display_options['fields']['swo__software']['field'] = 'swo__software';
+    $handler->display['default']->display_options['fields']['swo__software']['label'] = 'Program';
+
+    /* Filter criterion: Analysis: Program, Pipeline, Workflow or Method Name */
+    $handler->display['default']->display_options['filters']['swo__software']['id'] = 'swo__software';
+    $handler->display['default']->display_options['filters']['swo__software']['table'] = 'operation__2945';
+    $handler->display['default']->display_options['filters']['swo__software']['field'] = 'swo__software';
+    $handler->display['default']->display_options['filters']['swo__software']['operator'] = 'contains';
+    $handler->display['default']->display_options['filters']['swo__software']['group'] = 1;
+    $handler->display['default']->display_options['filters']['swo__software']['exposed'] = TRUE;
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['operator_id'] = 'swo__software_op';
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['label'] = 'Program';
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['operator'] = 'swo__software_op';
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['identifier'] = 'swo__software';
+    $handler->display['default']->display_options['filters']['swo__software']['expose']['remember_roles'] = array(
+      2 => '2',
+      1 => 0,
+      3 => 0,
+    );
+
+    /* Filter criterion: Analysis: Data Source Name */
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['id'] = 'local__source_data.schema:name';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['table'] = 'operation__2945';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['field'] = 'local__source_data.schema:name';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['operator'] = 'contains';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['group'] = 1;
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['exposed'] = TRUE;
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['operator_id'] = 'local__source_data_schema:name_op';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['label'] = 'Data Source Name';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['operator'] = 'local__source_data_schema:name_op';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['identifier'] = 'local__source_data_schema:name';
+    $handler->display['default']->display_options['filters']['local__source_data.schema:name']['expose']['remember_roles'] = array(
+      2 => '2',
+      1 => 0,
+      3 => 0,
+    );
+
+
+    //mRNA
+    $handler = $views['mRNA_search'];
+    //Cleanup
+    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+    unset($handler->display['default']->display_options['fields']['data__accession']);
+    unset($handler->display['default']->display_options['fields']['schema__alternate_name']);
+    unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['data__identifier']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['data__accession']);
+    unset($handler->display['default']->display_options['filters']['obi__organism']['expose']['use_operator']);
+
+    // Set up results without input
+    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
+    // Change field name
+    $handler->display['default']->display_options['filters']['data__identifier']['expose']['label'] = 'Unique Name';
+    $handler->display['default']->display_options['fields']['data__identifier']['label'] = 'Unique Name';
+
+
+    //Polypeptide
+    $handler = $views['Polypeptide_search'];
+    //Cleanup
+    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+    unset($handler->display['default']->display_options['fields']['data__accession']);
+    unset($handler->display['default']->display_options['fields']['schema__alternate_name']);
+    unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['data__identifier']['expose']['use_operator']);
+    unset($handler->display['default']->display_options['filters']['data__accession']);
+    unset($handler->display['default']->display_options['filters']['obi__organism']['expose']['use_operator']);
+
+    // Set up results without input
+    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
+    // Change field name
+    $handler->display['default']->display_options['filters']['data__identifier']['expose']['label'] = 'Unique Name';
+    $handler->display['default']->display_options['fields']['data__identifier']['label'] = 'Unique Name';
+    
+};
+
+
