@@ -4,13 +4,13 @@
 /**
  * Implements install_hook().
  *
- * Performs actions when the module is first installed.
+ * Performs actions when all other modules are installed (run only once).
  *
  * 
  */
 
 
-function tripal_bipaa_ui_install() {
+function tripal_bipaa_ui_modules_enabled() {
 
     // Need to create the polypeptide type..
 
@@ -35,7 +35,6 @@ function tripal_bipaa_ui_install() {
         "organism" => "organism/[taxrank__genus]/[taxrank__species]",
         "mRNA" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[schema__name]",
         "Analysis" => "analysis/[TripalEntity__entity_id]",
-        "gene" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[schema__name]",
         "polypeptide" => "feature/[obi__organism,TAXRANK:0000005]/[obi__organism,TAXRANK:0000006]/[rdfs__type]/[schema__name]"
     );
 
@@ -52,7 +51,30 @@ function tripal_bipaa_ui_install() {
     setup_alias("data_search/polypeptide", "chado/polypeptide");
     setup_alias("data_search/mrna", "chado/mrna");
 
+    $field_list = array(
+        array(
+            "wrapper_name" => "Blast",
+            "wrapper_machine_name" =>"blast",
+            "field_machine_name" => "format__blast_results",
+        ),
+        array(
+            "wrapper_name" => "Expression",
+            "wrapper_machine_name" =>"expression",
+            "field_machine_name" => "data__gene_expression_data",
+        ),
+        array(
+            "wrapper_name" => "Interpro",
+            "wrapper_machine_name" =>"interpro",
+            "field_machine_name" => "local__interpro_results",
+        ),
+    );
+
+
+    setup_fields("polypeptide", $field_list);
+    setup_fields("mRNA", $field_list);
+
 };
+
 
 function get_bundle_id($entity_name){
 
@@ -70,10 +92,27 @@ function get_bundle_id($entity_name){
 
 
 function setup_alias($source,$path){
-    // Needs to create an alias manually
     $path = array(
         "source" => $source,
         "alias" => $path
     );
     path_save($path);
+}
+
+function setup_fields($entity_name, $fields_list){
+    // Get the bundle ID and load it.
+    $bundle_id = get_bundle_id($entity_name);
+    $bundle = tripal_load_bundle_entity(array('id' => $bundle_id));
+    $term = tripal_load_term_entity(array('term_id' => $bundle->term_id));
+
+    // Refresh fields
+    tripal_create_bundle_fields($bundle, $term);
+
+    //Create an empty tripal panel for each field to insert, and add the field to it
+
+    foreach ( $fields_list as $field_dict ){
+        
+        tripal_ds_create_field($field_dict['wrapper_name'], $field_dict['wrapper_machine_name'], $bundle->name);
+    }
+
 }
