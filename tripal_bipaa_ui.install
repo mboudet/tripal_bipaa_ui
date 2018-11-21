@@ -73,6 +73,8 @@ function tripal_bipaa_ui_modules_enabled() {
     setup_fields("polypeptide", $field_list);
     setup_fields("mRNA", $field_list);
 
+    drupal_flush_all_caches();
+
 };
 
 
@@ -110,9 +112,75 @@ function setup_fields($entity_name, $fields_list){
 
     //Create an empty tripal panel for each field to insert, and add the field to it
 
-    foreach ( $fields_list as $field_dict ){
-        
+    foreach ( $fields_list as $field_dict ){        
         tripal_ds_create_field($field_dict['wrapper_name'], $field_dict['wrapper_machine_name'], $bundle->name);
+        set_panel_children($bundle->name, $field_dict['wrapper_machine_name'], $field_dict['field_machine_name']);
     }
+    set_panels($bundle->name, $fields_list);
 
 }
+
+function set_panel_children($bundle_name, $wrapper_name, $field_name){
+    // The field group unique ID
+    $field_group_id = 'gp_'.$wrapper_name.'|TripalEntity|'.$bundle_name.'|default';
+
+    $result = db_select('field_group', 'fg')
+    ->fields('fg', array('data'))
+    ->condition('fg.identifier', $field_group_id, '=')
+    ->execute()
+    ->fetchObject();
+
+    $layout_info = unserialize($result->data);
+    $layout_info["children"] = array($field_name);
+
+    db_update('field_group')
+    ->fields(array(
+        'data' => serialize($layout_info),
+    ))
+    ->condition('field_group.identifier', $field_group_id, '=')
+    ->execute();
+}
+
+
+function set_panels($bundle_name, $fields_list){
+
+    // Rewrited tripal_ds_update_ds_layout
+
+    $ds_identifier = 'TripalEntity|'.$bundle_name.'|default';
+
+    $result = db_select('ds_layout_settings', 'ds')
+    ->fields('ds', array('settings'))
+    ->condition('ds.id', $ds_identifier, '=')
+    ->execute()
+    ->fetchObject();
+
+  //If the layout exists unserialize it.
+    if(!empty($result)) {
+        $layout_info = $result->settings;
+        $layout_info = unserialize($layout_info);
+
+        //Count the number of rows in the region and add the field to the region.
+        $index = count($layout_info['regions']['right']);
+
+        foreach ( $fields_list as $field_dict ){
+            //Get full machine name
+            $tripal_field = 'gp_'.$field_dict['wrapper_machine_name'];
+            //Now add the tripal pane and field to the right region and field array.
+            $layout_info['regions']['right'][$index] = $field_dict['field_machine_name'];
+            $layout_info['fields'][$field_dict['field_machine_name']] = 'right';
+            $index++;
+            $layout_info['regions']['right'][$index] = $tripal_field;
+            $layout_info['fields'][$tripal_field] = 'right';
+            $index++;
+        }
+
+        //Update the ds_layout_settings table with the new layout info.
+        db_update('ds_layout_settings')
+        ->fields(array(
+            'settings' => serialize($layout_info),
+        ))
+        ->condition('ds_layout_settings.id', $ds_identifier, '=')
+        ->execute();
+    }
+}
+
