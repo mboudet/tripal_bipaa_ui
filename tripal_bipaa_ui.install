@@ -2,17 +2,14 @@
 
 
 /**
- * Implements install_hook().
+ * Implements hook_install().
  *
- * Performs actions when all other modules are installed (run only once).
+ * Performs actions when installed.
  *
- * 
+ *
  */
 
-
-function tripal_bipaa_ui_modules_enabled() {
-
-    // Need to create the polypeptide type..
+function tripal_bipaa_ui_install() {
 
     $args = array(
         "vocabulary" => "SO",
@@ -69,12 +66,25 @@ function tripal_bipaa_ui_modules_enabled() {
         ),
     );
 
-
     setup_fields("polypeptide", $field_list);
     setup_fields("mRNA", $field_list);
 
     drupal_flush_all_caches();
 
+};
+
+/**
+ * Implements hook_modules_enabled($modules).
+ *
+ * Performs actions when other modules are enabled.
+ *
+ *
+ */
+
+function tripal_bipaa_ui_modules_enabled($modules){
+    // Might need to restrict this to module.. maybe a count to make sure all three are loaded?
+    refresh_fields("polypeptide");
+    refresh_fields("mRNA");
 };
 
 
@@ -105,10 +115,10 @@ function setup_fields($entity_name, $fields_list){
     // Get the bundle ID and load it.
     $bundle_id = get_bundle_id($entity_name);
     $bundle = tripal_load_bundle_entity(array('id' => $bundle_id));
-    $term = tripal_load_term_entity(array('term_id' => $bundle->term_id));
+    //$term = tripal_load_term_entity(array('term_id' => $bundle->term_id));
 
-    // Refresh fields
-    tripal_create_bundle_fields($bundle, $term);
+    // Refresh fields (or it should, but depending on load order it won't. Can remove this probably
+    // tripal_create_bundle_fields($bundle, $term);
 
     //Create an empty tripal panel for each field to insert, and add the field to it
 
@@ -184,3 +194,12 @@ function set_panels($bundle_name, $fields_list){
     }
 }
 
+
+function refresh_fields($entity_name){
+    $bundle_id = get_bundle_id($entity_name);
+    $bundle = tripal_load_bundle_entity(array('id' => $bundle_id));
+    $term = tripal_load_term_entity(array('term_id' => $bundle->term_id));
+
+    // Refresh fields
+    tripal_create_bundle_fields($bundle, $term);
+}
