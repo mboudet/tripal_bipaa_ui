@@ -21,7 +21,8 @@ function tripal_bipaa_ui_install() {
         )
     );
 
-    tripal_create_bundle($args);
+    $polypeptide_bundle = tripal_create_bundle($args);
+    set_view_permissions($polypeptide_bundle);
 
     // TEMP: need to setup at least an alias (temp bug fix)
     // https://github.com/tripal/tripal/issues/727
@@ -194,7 +195,6 @@ function set_panels($bundle_name, $fields_list){
     }
 }
 
-
 function refresh_fields($entity_name){
     $bundle_id = get_bundle_id($entity_name);
     $bundle = tripal_load_bundle_entity(array('id' => $bundle_id));
@@ -203,3 +203,14 @@ function refresh_fields($entity_name){
     // Refresh fields
     tripal_create_bundle_fields($bundle, $term);
 }
+
+function set_view_permissions($bundle){
+    $permissions = array("view " . $bundle->name);
+    $users = array("anonymous user", "authenticated user");
+    foreach ( $users as $user ){
+        $role_id = user_role_load_by_name($user)->rid;
+        user_role_grant_permissions($role_id, $permissions);
+    };
+};
+
+
