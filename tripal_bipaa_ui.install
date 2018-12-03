@@ -76,8 +76,11 @@ function tripal_bipaa_ui_enable(){
 
     create_menu('Content Search', 'custom_search', '');
     transfer_links('data_search', 'custom_search', array('mRNA Search','Polypeptide Search','Organism Search','Analysis Search'));
-    create_block('custom_search', 'sidebar_first', 'bartik');
-    create_block('custom_search', 'sidebar_first', 'seven');
+    // This block would be created later, but we want to place them now
+    create_block('menu', 'custom_search', 'sidebar_first', 'bartik');
+    create_block('menu', 'custom_search', 'sidebar_first', 'seven');
+    create_block('tripal_elasticsearch', 'elasticsearch_website_search_box', 'sidebar_first', 'bartik', -10);
+    create_block('tripal_elasticsearch', 'elasticsearch_website_search_box', 'sidebar_first', 'seven', -10);
     disable_block('navigation');
     disable_block('form');
     menu_cache_clear_all();
@@ -222,39 +225,20 @@ function set_view_permissions($bundle){
     };
 };
 
-
-function create_block($block_name, $region, $theme){
+function create_block($module, $block_name, $region, $theme, $weight=0){
     db_insert('block')
     ->fields(array(
-        'module' => 'menu',
+        'module' => $module,
         'delta' => $block_name,
         'pages' => "",
         'theme' => $theme,
         'status' => 1,
         'region' => $region,
+        'weight' => $weight, 
         'cache' => -1
     ))
     ->execute();
 };
-
-
-function enable_block($delta, $region){
-
-    $results = db_select('block', 'b')
-    ->fields('b', array('delta'))
-    ->execute()
-    ->fetchAll(PDO::FETCH_ASSOC);
-    
-    var_dump($results);
-
-    db_update('block')
-    ->fields(array(
-        'status' => 1,
-        'region' => $region,
-    ))
-    ->condition('block.delta', $delta, '=')
-    ->execute();
-}
 
 function disable_block($delta){
     db_update('block')
