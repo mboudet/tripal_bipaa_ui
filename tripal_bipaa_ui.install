@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Implements hook_install().
  *
@@ -49,6 +48,7 @@ function tripal_bipaa_ui_install() {
     setup_alias("data_search/polypeptide", "chado/polypeptide");
     setup_alias("data_search/mrna", "chado/mrna");
 
+    # Setup fields + wrappers in entity
     $field_list = array(
         array(
             "wrapper_name" => "Blast",
@@ -70,9 +70,18 @@ function tripal_bipaa_ui_install() {
     setup_fields("polypeptide", $field_list);
     setup_fields("mRNA", $field_list);
 
-    drupal_flush_all_caches();
-
 };
+
+function tripal_bipaa_ui_enable(){
+
+    create_menu('Content Search', 'custom_search', '');
+    transfer_links('data_search', 'custom_search', array('mRNA Search','Polypeptide Search','Organism Search','Analysis Search'));
+    create_block('custom_search', 'sidebar_first', 'bartik');
+    create_block('custom_search', 'sidebar_first', 'seven');
+    disable_block('navigation');
+    disable_block('form');
+    menu_cache_clear_all();
+}
 
 /**
  * Implements hook_modules_enabled($modules).
@@ -86,8 +95,8 @@ function tripal_bipaa_ui_modules_enabled($modules){
     // Might need to restrict this to module.. maybe a count to make sure all three are loaded?
     refresh_fields("polypeptide");
     refresh_fields("mRNA");
+    drupal_flush_all_caches();
 };
-
 
 function get_bundle_id($entity_name){
 
@@ -214,3 +223,83 @@ function set_view_permissions($bundle){
 };
 
 
+function create_block($block_name, $region, $theme){
+    db_insert('block')
+    ->fields(array(
+        'module' => 'menu',
+        'delta' => $block_name,
+        'pages' => "",
+        'theme' => $theme,
+        'status' => 1,
+        'region' => $region,
+        'cache' => -1
+    ))
+    ->execute();
+};
+
+
+function enable_block($delta, $region){
+
+    $results = db_select('block', 'b')
+    ->fields('b', array('delta'))
+    ->execute()
+    ->fetchAll(PDO::FETCH_ASSOC);
+    
+    var_dump($results);
+
+    db_update('block')
+    ->fields(array(
+        'status' => 1,
+        'region' => $region,
+    ))
+    ->condition('block.delta', $delta, '=')
+    ->execute();
+}
+
+function disable_block($delta){
+    db_update('block')
+    ->fields(array(
+        'status' => 0,
+    ))
+    ->condition('block.delta', $delta, '=')
+    ->execute();
+}
+
+function create_menu($menu_name, $machine_name, $description){
+    $path = 'admin/structure/menu/manage/';
+    $menu = array(
+        'menu_name' => $machine_name,
+        'title' => $menu_name,
+        'description' => $description,
+    );
+
+    $link = array();
+    $link['link_title'] = $menu_name;
+    $link['link_path'] = $path . $machine_name;
+    $link['router_path'] = $path . '%';
+    $link['module'] = 'menu';
+    $link['plid'] = db_query("SELECT mlid FROM {menu_links} WHERE link_path = :link AND module = :module", array(
+      ':link' => 'admin/structure/menu',
+      ':module' => 'system',
+    ))
+    ->fetchField();
+    menu_link_save($link);
+    menu_save($menu);
+}
+
+function transfer_links($old_menu, $new_menu, $link_array){
+    //First get the links
+    $results = db_select('menu_links', 'ml')
+    ->fields('ml')
+    ->condition('ml.menu_name', $old_menu, '=')
+    ->condition('ml.link_title', $link_array, 'IN')
+    ->execute()
+    ->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($results as $link) {
+        $link['menu_name'] = $new_menu;
+        $link['customized'] = 1;
+        $link['options'] = unserialize($link['options']);
+        menu_link_save($link);
+    }
+}
