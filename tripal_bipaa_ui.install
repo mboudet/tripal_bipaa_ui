@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Implements hook_install().
  *
@@ -10,6 +9,8 @@
  */
 
 function tripal_bipaa_ui_install() {
+
+    // Create polypeptide entity
 
     $args = array(
         "vocabulary" => "SO",
@@ -49,6 +50,7 @@ function tripal_bipaa_ui_install() {
     setup_alias("data_search/polypeptide", "chado/polypeptide");
     setup_alias("data_search/mrna", "chado/mrna");
 
+    // Setup fields for polypeptides and mRNA
     $field_list = array(
         array(
             "wrapper_name" => "Blast",
@@ -70,8 +72,23 @@ function tripal_bipaa_ui_install() {
     setup_fields("polypeptide", $field_list);
     setup_fields("mRNA", $field_list);
 
-    drupal_flush_all_caches();
 
+    // Create a custom menu, to avoid unwanted modifications by other modules
+    create_menu('Content Search', 'custom_search', '');
+    // Get the links we want from the data search menu and add them to the new menu
+    transfer_links('data_search', 'custom_search', array('mRNA Search','Polypeptide Search','Organism Search','Analysis Search'));
+    // Theses blocks would be created later, but we want to place them now, so we create them beforehand
+    create_block('menu', 'custom_search', 'sidebar_first', 'bartik');
+    create_block('menu', 'custom_search', 'sidebar_first', 'seven');
+    create_block('tripal_elasticsearch', 'elasticsearch_website_search_box', 'sidebar_first', 'bartik', -10);
+    create_block('tripal_elasticsearch', 'elasticsearch_website_search_box', 'sidebar_first', 'seven', -10);
+
+    // Disable obsolete blocks
+    disable_block('navigation');
+    disable_block('form');
+
+    //Clear cache
+    menu_cache_clear_all();
 };
 
 /**
@@ -83,11 +100,10 @@ function tripal_bipaa_ui_install() {
  */
 
 function tripal_bipaa_ui_modules_enabled($modules){
-    // Might need to restrict this to module.. maybe a count to make sure all three are loaded?
     refresh_fields("polypeptide");
     refresh_fields("mRNA");
+    drupal_flush_all_caches();
 };
-
 
 function get_bundle_id($entity_name){
 
@@ -101,7 +117,7 @@ function get_bundle_id($entity_name){
       ->execute()->fetchField();
 
     return $bundle_id;
-}
+};
 
 
 function setup_alias($source,$path){
@@ -110,7 +126,7 @@ function setup_alias($source,$path){
         "alias" => $path
     );
     path_save($path);
-}
+};
 
 function setup_fields($entity_name, $fields_list){
     // Get the bundle ID and load it.
@@ -126,10 +142,10 @@ function setup_fields($entity_name, $fields_list){
     foreach ( $fields_list as $field_dict ){        
         tripal_ds_create_field($field_dict['wrapper_name'], $field_dict['wrapper_machine_name'], $bundle->name);
         set_panel_children($bundle->name, $field_dict['wrapper_machine_name'], $field_dict['field_machine_name']);
-    }
+    };
     set_panels($bundle->name, $fields_list);
 
-}
+};
 
 function set_panel_children($bundle_name, $wrapper_name, $field_name){
     // The field group unique ID
@@ -150,8 +166,7 @@ function set_panel_children($bundle_name, $wrapper_name, $field_name){
     ))
     ->condition('field_group.identifier', $field_group_id, '=')
     ->execute();
-}
-
+};
 
 function set_panels($bundle_name, $fields_list){
 
@@ -183,7 +198,7 @@ function set_panels($bundle_name, $fields_list){
             $layout_info['regions']['right'][$index] = $tripal_field;
             $layout_info['fields'][$tripal_field] = 'right';
             $index++;
-        }
+        };
 
         //Update the ds_layout_settings table with the new layout info.
         db_update('ds_layout_settings')
@@ -192,8 +207,8 @@ function set_panels($bundle_name, $fields_list){
         ))
         ->condition('ds_layout_settings.id', $ds_identifier, '=')
         ->execute();
-    }
-}
+    };
+};
 
 function refresh_fields($entity_name){
     $bundle_id = get_bundle_id($entity_name);
@@ -213,4 +228,65 @@ function set_view_permissions($bundle){
     };
 };
 
+function create_block($module, $block_name, $region, $theme, $weight=0){
+    db_insert('block')
+    ->fields(array(
+        'module' => $module,
+        'delta' => $block_name,
+        'pages' => "",
+        'theme' => $theme,
+        'status' => 1,
+        'region' => $region,
+        'weight' => $weight, 
+        'cache' => -1
+    ))
+    ->execute();
+};
 
+function disable_block($delta){
+    db_update('block')
+    ->fields(array(
+        'status' => 0,
+    ))
+    ->condition('block.delta', $delta, '=')
+    ->execute();
+};
+
+function create_menu($menu_name, $machine_name, $description){
+    $path = 'admin/structure/menu/manage/';
+    $menu = array(
+        'menu_name' => $machine_name,
+        'title' => $menu_name,
+        'description' => $description,
+    );
+
+    $link = array();
+    $link['link_title'] = $menu_name;
+    $link['link_path'] = $path . $machine_name;
+    $link['router_path'] = $path . '%';
+    $link['module'] = 'menu';
+    $link['plid'] = db_query("SELECT mlid FROM {menu_links} WHERE link_path = :link AND module = :module", array(
+      ':link' => 'admin/structure/menu',
+      ':module' => 'system',
+    ))
+    ->fetchField();
+    menu_link_save($link);
+    menu_save($menu);
+};
+
+function transfer_links($old_menu, $new_menu, $link_array){
+    //First get the links
+    $results = db_select('menu_links', 'ml')
+    ->fields('ml')
+    ->condition('ml.menu_name', $old_menu, '=')
+    ->condition('ml.link_title', $link_array, 'IN')
+    ->execute()
+    ->fetchAll(PDO::FETCH_ASSOC);
+    
+    foreach ($results as $link) {
+        $link['menu_name'] = $new_menu;
+        $link['customized'] = 1;
+        $link['options'] = unserialize($link['options']);
+        menu_link_save($link);
+    };
+};

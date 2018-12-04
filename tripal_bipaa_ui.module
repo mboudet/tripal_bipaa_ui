@@ -25,9 +25,8 @@ function render_expression_blocks() {
         return $output;
 }
 
-
 /**
-* Implements hook_views_default_views_alter((&$views).
+* Implements hook_views_default_views_alter(&$views)
 */
 
 function tripal_bipaa_ui_views_default_views_alter(&$views) {
@@ -182,6 +181,9 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
     // Change field name
     $handler->display['default']->display_options['filters']['data__identifier']['expose']['label'] = 'Unique Name';
     $handler->display['default']->display_options['fields']['data__identifier']['label'] = 'Unique Name';
+
+
+    
     
 };
 
