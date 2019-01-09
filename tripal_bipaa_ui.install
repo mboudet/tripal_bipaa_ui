@@ -69,9 +69,22 @@ function tripal_bipaa_ui_install() {
         ),
     );
 
+    $organism_field_list = array(
+        array(
+            "wrapper_name" => "Go",
+            "wrapper_machine_name" =>"go",
+            "field_machine_name" => "local__go_results",
+        ),
+        array(
+            "wrapper_name" => "Biomaterials",
+            "wrapper_machine_name" =>"biomaterials",
+            "field_machine_name" => "sep__biological_sample",
+        )
+    );
+
     setup_fields("polypeptide", $field_list);
     setup_fields("mRNA", $field_list);
-
+    setup_fields("organism", $organism_field_list);
 
     // Create a custom menu, to avoid unwanted modifications by other modules
     create_menu('Content Search', 'custom_search', '');
@@ -102,6 +115,7 @@ function tripal_bipaa_ui_install() {
 function tripal_bipaa_ui_modules_enabled($modules){
     refresh_fields("polypeptide");
     refresh_fields("mRNA");
+    refresh_fields("organism");
     drupal_flush_all_caches();
 };
 
