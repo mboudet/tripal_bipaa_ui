@@ -14,6 +14,21 @@ function tripal_bipaa_ui_menu() {
         'type' => MENU_CALLBACK,
      );
 
+    $items['analysis-expression/heatmap/search'] = [
+    'title' => '',
+    'access arguments' => ['access content'],
+    'page callback' => 'tripal_analysis_expression_search_features_callback',
+    'type' => MENU_CALLBACK,
+    ];
+
+    $items['analysis-expression/download'] = [
+    'title' => '',
+    'access arguments' => ['access content'],
+    'page callback' => 'analysis_expression_data_downloader::callback',
+    'type' => MENU_CALLBACK,
+    ];
+
+
     return $items;
 }
 
@@ -322,4 +337,32 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
         );
                 
     };
+};
+
+
+function tripal_bipaa_ui_form_alter(&$form, &$form_state, $form_id){
+    switch ($form_id){
+        case 'feature_heatmap_form':
+            // Might be better to fill it with proper value, but it would make sql database calls..
+            unset($form['example_button']);
+            unset($form['heatmap_feature_uniquename']['#attributes']['placeholder']);
+            unset($form['heatmap_feature_uniquename']['#description']);
+    };
+}
+
+function tripal_bipaa_ui_js_alter(&$javascript){
+
+    $scripts = array(
+        'heatmap-search.js' => 'heatmap-search-fix.js',
+        'heatmap.js' => 'heatmap-fix.js'
+    );
+
+    $old_script_path = drupal_get_path('module', 'tripal_analysis_expression') . '/theme/js/';
+    $new_script_path = drupal_get_path('module', 'tripal_bipaa_ui') . '/js/';
+    
+    foreach($scripts as $key => $value){
+        if(isset($javascript[$old_script_path . $key])){
+            $javascript[$old_script_path . $key]['data'] = $new_script_path . $value;
+        };
+    }
 };
