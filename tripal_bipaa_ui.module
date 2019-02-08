@@ -354,7 +354,8 @@ function tripal_bipaa_ui_js_alter(&$javascript){
 
     $scripts = array(
         'heatmap-search.js' => 'heatmap-search-fix.js',
-        'heatmap.js' => 'heatmap-fix.js'
+        'heatmap.js' => 'heatmap-fix.js',
+        'expression.js' => 'expression-fix.js'
     );
 
     $old_script_path = drupal_get_path('module', 'tripal_analysis_expression') . '/theme/js/';

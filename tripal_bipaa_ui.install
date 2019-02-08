@@ -100,7 +100,8 @@ function tripal_bipaa_ui_install() {
     disable_block('form');
 
     // Need to disable field_groups and their children
-    // Hopefully these group names are not random..
+    // Hopefully these group names are not random (they are, need to use the label)..
+
     disable_fields_groups('organism', ['Annotations', 'Cross Reference', 'Publication', 'Relationship'], True, True);
     disable_fields_groups('mRNA',['Contact', 'Publication', 'Location on Map'], True, True);
     disable_fields_groups('polypeptide',['Contact', 'Publication', 'Location on Map'], True, True);
