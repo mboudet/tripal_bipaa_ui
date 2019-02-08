@@ -12,7 +12,8 @@
       this.currentColor = $('#propertyColorMenu').find(':selected').text();
       this.downloadMessage = $('<span />');
       this.downloadLink = $('#expressionDownloadLink');
-      var link = '/analysis-expression/download?feature_ids=' + this.feature_id + '&analysis_id=' + this.selectedAnalysis;
+      this.base_url = settings.basePath;
+      var link = this.base_url + 'analysis-expression/download?feature_ids=' + this.feature_id + '&analysis_id=' + this.selectedAnalysis;
       $('#expressionDownloadLink').attr('href', link);
 
       //spacing variables
@@ -86,7 +87,7 @@
       this.expNormal();
 
       // Change the link address
-      var link = '/analysis-expression/download?feature_ids=' + this.feature_id + '&analysis_id=' + this.selectedAnalysis;
+      var link = this.base_url + '/analysis-expression/download?feature_ids=' + this.feature_id + '&analysis_id=' + this.selectedAnalysis;
       $('#expressionDownloadLink').attr('href', link);
     },
 
