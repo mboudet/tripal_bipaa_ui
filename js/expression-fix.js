@@ -87,7 +87,7 @@
       this.expNormal();
 
       // Change the link address
-      var link = this.base_url + '/analysis-expression/download?feature_ids=' + this.feature_id + '&analysis_id=' + this.selectedAnalysis;
+      var link = this.base_url + 'analysis-expression/download?feature_ids=' + this.feature_id + '&analysis_id=' + this.selectedAnalysis;
       $('#expressionDownloadLink').attr('href', link);
     },
 
