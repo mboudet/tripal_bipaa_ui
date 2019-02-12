@@ -14,6 +14,21 @@ function tripal_bipaa_ui_menu() {
         'type' => MENU_CALLBACK,
      );
 
+    $items['analysis-expression/heatmap/search'] = [
+    'title' => '',
+    'access arguments' => ['access content'],
+    'page callback' => 'tripal_analysis_expression_search_features_callback',
+    'type' => MENU_CALLBACK,
+    ];
+
+    $items['analysis-expression/download'] = [
+    'title' => '',
+    'access arguments' => ['access content'],
+    'page callback' => 'analysis_expression_data_downloader::callback',
+    'type' => MENU_CALLBACK,
+    ];
+
+
     return $items;
 }
 
@@ -146,45 +161,209 @@ function tripal_bipaa_ui_views_default_views_alter(&$views) {
       3 => 0,
     );
 
+    // Might as well not duplicate the code
+    $gene_handler = array(        
+        "mRNA" => array( 
+            "view" => $views['mRNA_search'],
+            "table" => 'SO__0000234'
+         ),
+        "Polypeptide" => array(
+            "view" => $views['Polypeptide_search'],
+            "table" =>  'SO__0000104'
+        )
+    );
 
-    //mRNA
-    $handler = $views['mRNA_search'];
-    //Cleanup
-    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
-    unset($handler->display['default']->display_options['fields']['data__accession']);
-    unset($handler->display['default']->display_options['fields']['schema__alternate_name']);
-    unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
-    unset($handler->display['default']->display_options['filters']['data__identifier']['expose']['use_operator']);
-    unset($handler->display['default']->display_options['filters']['data__accession']);
-    unset($handler->display['default']->display_options['filters']['obi__organism']['expose']['use_operator']);
+    foreach ($gene_handler as $key => $value){
+ 
+        $handler = $value["view"];
+        $table = $value["table"];
+        //Cleanup
+        unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
+        unset($handler->display['default']->display_options['fields']['data__accession']);
+        unset($handler->display['default']->display_options['fields']['schema__alternate_name']);
+        unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
+        unset($handler->display['default']->display_options['filters']['data__identifier']['expose']['use_operator']);
+        unset($handler->display['default']->display_options['filters']['data__accession']);
+        unset($handler->display['default']->display_options['filters']['obi__organism']['expose']['use_operator']);
+        unset($handler->display['default']->display_options['fields']);
+        unset($handler->display['default']->display_options['filters']);
+        // Set up results without input
+        $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
 
-    // Set up results without input
-    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
-    // Change field name
-    $handler->display['default']->display_options['filters']['data__identifier']['expose']['label'] = 'Unique Name';
-    $handler->display['default']->display_options['fields']['data__identifier']['label'] = 'Unique Name';
-
-
-    //Polypeptide
-    $handler = $views['Polypeptide_search'];
-    //Cleanup
-    unset($handler->display['default']->display_options['footer']['tripal_area_collections']);
-    unset($handler->display['default']->display_options['fields']['data__accession']);
-    unset($handler->display['default']->display_options['fields']['schema__alternate_name']);
-    unset($handler->display['default']->display_options['filters']['schema__name']['expose']['use_operator']);
-    unset($handler->display['default']->display_options['filters']['data__identifier']['expose']['use_operator']);
-    unset($handler->display['default']->display_options['filters']['data__accession']);
-    unset($handler->display['default']->display_options['filters']['obi__organism']['expose']['use_operator']);
-
-    // Set up results without input
-    $handler->display['default']->display_options['exposed_form']['type'] = 'basic';
-    // Change field name
-    $handler->display['default']->display_options['filters']['data__identifier']['expose']['label'] = 'Unique Name';
-    $handler->display['default']->display_options['fields']['data__identifier']['label'] = 'Unique Name';
-
-
-    
-    
+        $handler->display['default']->display_options['style_options']['columns'] = array(
+          'entity_id' => 'entity_id',
+          'data__identifier' => 'data__identifier',
+          'schema__name' => 'schema__name',
+          'data__accession' => 'data__accession',
+          'obi__organism' => 'obi__organism',
+          'schema__alternate_name' => 'schema__alternate_name',
+        );
+        $handler->display['default']->display_options['style_options']['default'] = '-1';
+        $handler->display['default']->display_options['style_options']['info'] = array(
+          'entity_id' => array(
+            'sortable' => 1,
+            'separator' => '',
+          ),
+          'data__identifier' => array(
+            'separator' => '',
+            'sortable' => 1,
+            'default_sort_order' => 'asc',
+          ),
+          'schema__name' => array(
+            'separator' => '',
+            'sortable' => 1,
+            'default_sort_order' => 'asc',
+          ),
+          'data__accession' => array(
+            'separator' => '',
+            'sortable' => 1,
+            'default_sort_order' => 'asc',
+          ),
+          'obi__organism' => array(
+            'separator' => '',
+            'sortable' => 1,
+            'default_sort_order' => 'asc',
+          ),
+          'schema__alternate_name' => array(
+            'separator' => '',
+            'sortable' => 1,
+            'default_sort_order' => 'asc',
+          ),
+        );              
+        /* Field: Entity ID */
+        $handler->display['default']->display_options['fields']['entity_id']['id'] = 'entity_id';
+        $handler->display['default']->display_options['fields']['entity_id']['table'] = $table;
+        $handler->display['default']->display_options['fields']['entity_id']['field'] = 'entity_id';
+        $handler->display['default']->display_options['fields']['entity_id']['exclude'] = TRUE;
+        /* Field: Genus */
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000005']['id'] = 'obi__organism.TAXRANK:0000005';
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000005']['table'] = $table;
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000005']['field'] = 'obi__organism.TAXRANK:0000005';
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000005']['label'] = '';
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000005']['exclude'] = TRUE;
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000005']['element_label_colon'] = FALSE;
+        /* Field  Species */
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000006']['id'] = 'obi__organism.TAXRANK:0000006';
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000006']['table'] = $table;
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000006']['field'] = 'obi__organism.TAXRANK:0000006';
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000006']['label'] = '';
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000006']['exclude'] = TRUE;
+        $handler->display['default']->display_options['fields']['obi__organism.TAXRANK:0000006']['element_label_colon'] = FALSE;
+        /* Field  Identifier */
+        $handler->display['default']->display_options['fields']['data__identifier']['id'] = 'data__identifier';
+        $handler->display['default']->display_options['fields']['data__identifier']['table'] = $table;
+        $handler->display['default']->display_options['fields']['data__identifier']['field'] = 'data__identifier';
+        $handler->display['default']->display_options['fields']['data__identifier']['label'] = 'Unique Name';
+        $handler->display['default']->display_options['fields']['data__identifier']['alter']['alter_text'] = TRUE;
+        $handler->display['default']->display_options['fields']['data__identifier']['alter']['text'] = '[data__identifier]';
+        $handler->display['default']->display_options['fields']['data__identifier']['alter']['make_link'] = TRUE;
+        $handler->display['default']->display_options['fields']['data__identifier']['alter']['path'] = 'feature/[obi__organism.TAXRANK:0000005]/[obi__organism.TAXRANK:0000006]/'.$key.'/[data__identifier]';
+        /* Field  Name */
+        $handler->display['default']->display_options['fields']['schema__name']['id'] = 'schema__name';
+        $handler->display['default']->display_options['fields']['schema__name']['table'] = $table;
+        $handler->display['default']->display_options['fields']['schema__name']['field'] = 'schema__name';
+        $handler->display['default']->display_options['fields']['schema__name']['alter']['alter_text'] = TRUE;
+        $handler->display['default']->display_options['fields']['schema__name']['alter']['text'] = '[schema__name]';
+        $handler->display['default']->display_options['fields']['schema__name']['alter']['make_link'] = TRUE;
+        $handler->display['default']->display_options['fields']['schema__name']['alter']['path'] = 'feature/[obi__organism.TAXRANK:0000005]/[obi__organism.TAXRANK:0000006]/'.$key.'/[data__identifier]';
+        /* Field  Sequence Length */
+        $handler->display['default']->display_options['fields']['data__sequence_length']['id'] = 'data__sequence_length';
+        $handler->display['default']->display_options['fields']['data__sequence_length']['table'] = $table;
+        $handler->display['default']->display_options['fields']['data__sequence_length']['field'] = 'data__sequence_length';
+        /* Field  Organism */
+        $handler->display['default']->display_options['fields']['obi__organism']['id'] = 'obi__organism';
+        $handler->display['default']->display_options['fields']['obi__organism']['table'] = $table;
+        $handler->display['default']->display_options['fields']['obi__organism']['field'] = 'obi__organism';
+        $handler->display['default']->display_options['fields']['obi__organism']['alter']['alter_text'] = TRUE;
+        $handler->display['default']->display_options['fields']['obi__organism']['alter']['text'] = '[obi__organism.TAXRANK:0000005] [obi__organism.TAXRANK:0000006]';
+        $handler->display['default']->display_options['fields']['obi__organism']['alter']['make_link'] = TRUE;
+        $handler->display['default']->display_options['fields']['obi__organism']['alter']['path'] = 'organism/[obi__organism.TAXRANK:0000005]/[obi__organism.TAXRANK:0000006]';
+        /* Sort criterion: : Identifier */
+        $handler->display['default']->display_options['sorts']['priority']['id'] = 'schema__alternate_name';
+        $handler->display['default']->display_options['sorts']['priority']['table'] = $table;
+        $handler->display['default']->display_options['sorts']['priority']['field'] = 'data__identifier';
+        /* Filter criterion: Published */
+        $handler->display['default']->display_options['filters']['status']['id'] = 'status';
+        $handler->display['default']->display_options['filters']['status']['table'] = $table;
+        $handler->display['default']->display_options['filters']['status']['field'] = 'status';
+        $handler->display['default']->display_options['filters']['status']['value'] = '1';
+        /* Filter criterion: Identifier */
+        $handler->display['default']->display_options['filters']['data__identifier']['id'] = 'data__identifier';
+        $handler->display['default']->display_options['filters']['data__identifier']['table'] = $table;
+        $handler->display['default']->display_options['filters']['data__identifier']['field'] = 'data__identifier';
+        $handler->display['default']->display_options['filters']['data__identifier']['operator'] = 'contains';
+        $handler->display['default']->display_options['filters']['data__identifier']['group'] = 1;
+        $handler->display['default']->display_options['filters']['data__identifier']['exposed'] = TRUE;
+        $handler->display['default']->display_options['filters']['data__identifier']['expose']['operator_id'] = 'data__identifier_op';
+        $handler->display['default']->display_options['filters']['data__identifier']['expose']['label'] = 'Unique Name';
+        $handler->display['default']->display_options['filters']['data__identifier']['expose']['operator'] = 'data__identifier_op';
+        $handler->display['default']->display_options['filters']['data__identifier']['expose']['identifier'] = 'data__identifier';
+        $handler->display['default']->display_options['filters']['data__identifier']['expose']['remember_roles'] = array(
+          2 => '2',
+          1 => 0,
+          3 => 0,
+        );
+        /* Filter criterion:  Name */
+        $handler->display['default']->display_options['filters']['schema__name']['id'] = 'schema__name';
+        $handler->display['default']->display_options['filters']['schema__name']['table'] = $table;
+        $handler->display['default']->display_options['filters']['schema__name']['field'] = 'schema__name';
+        $handler->display['default']->display_options['filters']['schema__name']['operator'] = 'contains';
+        $handler->display['default']->display_options['filters']['schema__name']['group'] = 1;
+        $handler->display['default']->display_options['filters']['schema__name']['exposed'] = TRUE;
+        $handler->display['default']->display_options['filters']['schema__name']['expose']['operator_id'] = 'schema__name_op';
+        $handler->display['default']->display_options['filters']['schema__name']['expose']['label'] = 'Name';
+        $handler->display['default']->display_options['filters']['schema__name']['expose']['operator'] = 'schema__name_op';
+        $handler->display['default']->display_options['filters']['schema__name']['expose']['identifier'] = 'schema__name';
+        $handler->display['default']->display_options['filters']['schema__name']['expose']['remember_roles'] = array(
+          2 => '2',
+          1 => 0,
+          3 => 0,
+        );
+        /* Filter criterion:  Organism */
+        $handler->display['default']->display_options['filters']['obi__organism']['id'] = 'obi__organism';
+        $handler->display['default']->display_options['filters']['obi__organism']['table'] = $table;
+        $handler->display['default']->display_options['filters']['obi__organism']['field'] = 'obi__organism';
+        $handler->display['default']->display_options['filters']['obi__organism']['operator'] = 'contains';
+        $handler->display['default']->display_options['filters']['obi__organism']['group'] = 1;
+        $handler->display['default']->display_options['filters']['obi__organism']['exposed'] = TRUE;
+        $handler->display['default']->display_options['filters']['obi__organism']['expose']['operator_id'] = 'obi__organism_op';
+        $handler->display['default']->display_options['filters']['obi__organism']['expose']['label'] = 'Organism';
+        $handler->display['default']->display_options['filters']['obi__organism']['expose']['operator'] = 'obi__organism_op';
+        $handler->display['default']->display_options['filters']['obi__organism']['expose']['identifier'] = 'obi__organism';
+        $handler->display['default']->display_options['filters']['obi__organism']['expose']['remember_roles'] = array(
+          2 => '2',
+          1 => 0,
+          3 => 0,
+        );
+                
+    };
 };
 
 
+function tripal_bipaa_ui_form_alter(&$form, &$form_state, $form_id){
+    switch ($form_id){
+        case 'feature_heatmap_form':
+            // Might be better to fill it with proper value, but it would make sql database calls..
+            unset($form['example_button']);
+            unset($form['heatmap_feature_uniquename']['#attributes']['placeholder']);
+            unset($form['heatmap_feature_uniquename']['#description']);
+    };
+}
+
+function tripal_bipaa_ui_js_alter(&$javascript){
+
+    $scripts = array(
+        'heatmap-search.js' => 'heatmap-search-fix.js',
+        'heatmap.js' => 'heatmap-fix.js',
+        'expression.js' => 'expression-fix.js'
+    );
+
+    $old_script_path = drupal_get_path('module', 'tripal_analysis_expression') . '/theme/js/';
+    $new_script_path = drupal_get_path('module', 'tripal_bipaa_ui') . '/js/';
+    
+    foreach($scripts as $key => $value){
+        if(isset($javascript[$old_script_path . $key])){
+            $javascript[$old_script_path . $key]['data'] = $new_script_path . $value;
+        };
+    }
+};
