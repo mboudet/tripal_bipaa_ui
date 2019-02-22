@@ -339,18 +339,30 @@ function set_view_permissions($bundle){
 };
 
 function create_block($module, $block_name, $region, $theme, $weight=0){
-    db_insert('block')
-    ->fields(array(
-        'module' => $module,
-        'delta' => $block_name,
-        'pages' => "",
-        'theme' => $theme,
-        'status' => 1,
-        'region' => $region,
-        'weight' => $weight, 
-        'cache' => -1
-    ))
-    ->execute();
+
+    $result = db_select('block', 'bl')
+    ->fields('bl', array('bid'))
+    ->condition('bl.module', $module, '=')
+    ->condition('bl.theme', $theme, '=')
+    ->condition('bl.delta', $block_name, '=')
+    ->execute()
+    ->fetchObject();
+
+    if(!empty($result)){
+        db_insert('block')
+        ->fields(array(
+          'module' => $module,
+          'delta' => $block_name,
+          'pages' => "",
+          'theme' => $theme,
+          'status' => 1,
+          'region' => $region,
+          'weight' => $weight, 
+          'cache' => -1
+        ))
+        ->execute();
+    }
+
 };
 
 function disable_block($delta){
