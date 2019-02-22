@@ -340,6 +340,17 @@ function set_view_permissions($bundle){
 
 function create_block($module, $block_name, $region, $theme, $weight=0){
 
+    db_merge('block')
+    ->key(array('module' => $module, 'delta' => $block_name, 'theme' => $theme))
+    ->fields(array(
+      'pages' => "",
+	  'region' => $region,
+          'status' => 1,
+          'weight' => $weight,
+          'cache' => -1
+    ))
+    ->execute();
+/*
     $result = db_select('block', 'bl')
     ->fields('bl', array('bid'))
     ->condition('bl.module', $module, '=')
@@ -362,7 +373,7 @@ function create_block($module, $block_name, $region, $theme, $weight=0){
         ))
         ->execute();
     }
-
+*/
 };
 
 function disable_block($delta){
