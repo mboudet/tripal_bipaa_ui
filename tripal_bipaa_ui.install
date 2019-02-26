@@ -162,8 +162,8 @@ function setup_fields($entity_name, $fields_list){
     foreach ( $fields_list as $field_dict ){        
         tripal_ds_create_field($field_dict['wrapper_name'], $field_dict['wrapper_machine_name'], $bundle->name);
         set_panel_children($bundle->name, $field_dict['wrapper_machine_name'], $field_dict['field_machine_name']);
+        tripal_ds_update_ds_layout($bundle->name, $field_dict['field_machine_name'], array());
     };
-    set_panels($bundle->name, $fields_list);
 
 };
 
@@ -186,50 +186,6 @@ function set_panel_children($bundle_name, $wrapper_name, $field_name){
     ))
     ->condition('field_group.identifier', $field_group_id, '=')
     ->execute();
-};
-
-function set_panels($bundle_name, $fields_list){
-
-    // Rewrited tripal_ds_update_ds_layout
-    // Fix was merge in tripal, so we should use the main function
-
-
-    $ds_identifier = 'TripalEntity|'.$bundle_name.'|default';
-
-    $result = db_select('ds_layout_settings', 'ds')
-    ->fields('ds', array('settings'))
-    ->condition('ds.id', $ds_identifier, '=')
-    ->execute()
-    ->fetchObject();
-
-  //If the layout exists unserialize it.
-    if(!empty($result)) {
-        $layout_info = $result->settings;
-        $layout_info = unserialize($layout_info);
-
-        //Count the number of rows in the region and add the field to the region.
-        $index = count($layout_info['regions']['right']);
-
-        foreach ( $fields_list as $field_dict ){
-            //Get full machine name
-            $tripal_field = 'gp_'.$field_dict['wrapper_machine_name'];
-            //Now add the tripal pane and field to the right region and field array.
-            $layout_info['regions']['right'][$index] = $field_dict['field_machine_name'];
-            $layout_info['fields'][$field_dict['field_machine_name']] = 'right';
-            $index++;
-            $layout_info['regions']['right'][$index] = $tripal_field;
-            $layout_info['fields'][$tripal_field] = 'right';
-            $index++;
-        };
-
-        //Update the ds_layout_settings table with the new layout info.
-        db_update('ds_layout_settings')
-        ->fields(array(
-            'settings' => serialize($layout_info),
-        ))
-        ->condition('ds_layout_settings.id', $ds_identifier, '=')
-        ->execute();
-    };
 };
 
 function disable_fields_groups($entity_name, $field_group_list=[], $use_labels=False, $disable_children=False){
@@ -339,16 +295,15 @@ function set_view_permissions($bundle){
 };
 
 function create_block($module, $block_name, $region, $theme, $weight=0){
-    db_insert('block')
+
+    db_merge('block')
+    ->key(array('module' => $module, 'delta' => $block_name, 'theme' => $theme))
     ->fields(array(
-        'module' => $module,
-        'delta' => $block_name,
-        'pages' => "",
-        'theme' => $theme,
-        'status' => 1,
-        'region' => $region,
-        'weight' => $weight, 
-        'cache' => -1
+      'pages' => "",
+	  'region' => $region,
+          'status' => 1,
+          'weight' => $weight,
+          'cache' => -1
     ))
     ->execute();
 };
