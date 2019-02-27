@@ -1,3 +1,4 @@
 name = Tripal bipaa ui
 description = Module to ease the transition from Tripal2 to Tripal3
 core = 7.x
+stylesheets[all][] = css/tripal_bipaa_ui.css
