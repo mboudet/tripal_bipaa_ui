@@ -28,16 +28,29 @@ function tripal_bipaa_ui_menu() {
     'type' => MENU_CALLBACK,
     ];
 
+    $items['gene_search'] = array(
+        'title' => 'Gene search',
+        'page callback' => 'es_render_form',
+        'access arguments' => array('access content'),
+	'type' => MENU_CALLBACK,
+    );
 
     return $items;
 }
 
+function es_render_form(){
+    $blockObjectInput = block_load('tripal_elasticsearch', 'es_local_gene_search_block');
+    $block = _block_get_renderable_array(_block_render_blocks(array($blockObjectInput)));
+    $output = drupal_render($block);
+    return $output;
+}
+
 function render_expression_blocks() {
-        $blockObjectInput = block_load('tripal_analysis_expression', 'input_features');
-        $blockObjectView = block_load('tripal_analysis_expression', 'heatmap_features');
-        $block = _block_get_renderable_array(_block_render_blocks(array($blockObjectInput, $blockObjectView)));
-        $output = drupal_render($block);
-        return $output;
+    $blockObjectInput = block_load('tripal_analysis_expression', 'input_features');
+    $blockObjectView = block_load('tripal_analysis_expression', 'heatmap_features');
+    $block = _block_get_renderable_array(_block_render_blocks(array($blockObjectInput, $blockObjectView)));
+    $output = drupal_render($block);
+    return $output;
 }
 
 /**
@@ -348,4 +361,89 @@ function tripal_bipaa_ui_form_alter(&$form, &$form_state, $form_id){
             unset($form['heatmap_feature_uniquename']['#attributes']['placeholder']);
             unset($form['heatmap_feature_uniquename']['#description']);
     };
+}
+
+function redirect_form($form, &$form_state){
+
+    global $base_url;
+
+    $form['options'] = [
+        '#type' => 'fieldset',
+        '#attributes' => [
+            'class' => [
+                'container-inline',
+                'es-cross-site-search-form',
+            ],
+        ],
+    ];
+
+    $default_organism = ['' => 'Any Organism'];
+    $organisms = tripal_elasticsearch_get_gene_search_organisms();
+    $form['options']['organism'] = [
+        '#type' => 'select',
+        '#attributes' => [
+            'id' => 'tripal-elasticsearch-search-category',
+            'style' => 'max-width: 250px;',
+        ],
+        '#options' => array_merge(
+            $default_organism,
+            drupal_map_assoc($organisms)
+        ),
+        '#default_value' => isset($_GET['organism']) ? $_GET['organism'] : '',
+        '#required' => TRUE,
+    ];
+
+    $form['options']['search_term'] = [
+        '#type' => 'textfield',
+        '#size' => '50',
+        '#attributes' => [
+            'placeholder' => t('Search for mRNA or polypeptide.(E,g. Kinase or IPR020405)'),
+            'id' => 'tripal-elasticsearch-search-field',
+        ],
+        '#description' => '',
+        '#required' => TRUE,
+        '#default_value' => isset($_GET['search_term']) ? $_GET['search_term'] : '',
+    ];
+
+    $form['options']['search_button'] = [
+        '#type' => 'submit',
+        '#value' => t('Search'),
+    ];
+
+    $form['#method'] = 'GET';
+    $form['#action'] = $base_url . '/gene_search';
+
+    return $form;
+
+}
+
+function tripal_bipaa_ui_block_info(){
+    $blocks = [];
+
+    $blocks['redirect_block_mini'] = [
+        'info' => t('Redirect form block'),
+        'cache' => DRUPAL_NO_CACHE,
+        'status' => TRUE,
+//        'region' => 'sidebar_first',
+    ];
+
+    return $blocks;
+}
+
+
+function tripal_bipaa_ui_block_view($delta){
+
+    $block = [];
+
+    switch ($delta) {
+        case 'redirect_block_mini':
+            $block['subject'] = '';
+            $form = drupal_get_form('redirect_form');
+            unset($form['options']['organism']);
+            unset($form['options']['search_button']);
+            $block['content'] = $form;
+            break;
+    }    
+
+    return $block;
 }
