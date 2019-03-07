@@ -28,8 +28,21 @@ function tripal_bipaa_ui_menu() {
     'type' => MENU_CALLBACK,
     ];
 
+    $items['gene_search'] = array(
+        'title' => 'Gene search',
+        'page callback' => 'es_render_form',
+        'access arguments' => array('access content'),
+	'type' => MENU_CALLBACK,
+    );
 
     return $items;
+}
+
+function es_render_form(){
+	$blockObjectInput = block_load('tripal_elasticsearch', 'es_local_gene_search_block');
+	$block = _block_get_renderable_array(_block_render_blocks(array($blockObjectInput)));
+    $output = drupal_render($block);
+	return $output;
 }
 
 function render_expression_blocks() {
@@ -348,4 +361,187 @@ function tripal_bipaa_ui_form_alter(&$form, &$form_state, $form_id){
             unset($form['heatmap_feature_uniquename']['#attributes']['placeholder']);
             unset($form['heatmap_feature_uniquename']['#description']);
     };
+}
+/*
+function tripal_bipaa_ui_entity_view($entity, $type, $view_mode, $langcode) {
+	if($view_mode == 'full' && $entity->chado_table == 'feature' && isset($entity->content['data__sequence_coordinates'])){
+//        $entity->title = '&#60;&#47;h1&#62;Test<span>test</span><h1>';
+        $alignements = array();
+        foreach($entity->data__sequence_coordinates['und'] as $alignement){
+            if(!empty($alignement['value'])){
+                $alignment_name = $alignement['value']['data:3002'];
+                $alignment_min = $alignement['value']['local:fmin'];
+                $alignment_max = $alignement['value']['local:fmax'];
+                $strand = $alignement['value']['data:0853'];
+                $alignment_full = $alignment_name . ":" . ($alignment_min + 1) . ".." . $alignment_max . " " . $strand;
+		        $cur_org = $entity->chado_record->organism_id->abbreviation;
+                $feature_loc = $alignment_full;
+    
+		        if(getenv('ENABLE_JBROWSE')){
+			        $links = getenv(JBROWSE_LINKS);
+			        $found_link = false;
+                    if ($links) {
+                        $dlist = explode(';', $links);
+                        foreach ($dlist as $delem) {
+                            $d = explode('>', $delem);
+                            if ($cur_org === $d[0] || substr($alignment_name, 0, strlen($d[0])) === $d[0]) {
+                                $url = "/jbrowse?data=data/".$d[1]."&";
+                                $found_link = true;
+                                break;
+                            }
+                        }
+                    }
+        
+                    if (!$found_link) {
+                        if (getenv('ENABLE_JBROWSE') == "1"){
+                            $url = '/jbrowse?';
+                        } else {
+                            // Some url was given
+                            $url = getenv('ENABLE_JBROWSE');
+                            $url="/apisum";
+                            if (strpos($url, '?') !== false){
+                                $url .= '&';
+                            } else {
+                                $url .= '?';
+                            };
+                        }
+                    }
+        
+                    $feature_loc = "<a href='".$GLOBALS['base_url'].$url."loc=".$alignment_name."%3A".($alignment_min + 1)."..".$alignment_max."'>".$feature_loc."</a>";
+                }
+                if(! getenv('ENABLE_APOLLO')){
+                    $links = getenv(APOLLO_LINKS);
+                    if (!$links && getenv(JBROWSE_LINKS)){
+                        $links = getenv(JBROWSE_LINKS);
+                    }
+                    $found_link = false;
+                    if ($links) {
+                        $dlist = explode(';', $links);
+                        foreach ($dlist as $delem) {
+                            $d = explode('>', $delem);
+                            if ($cur_org === $d[0] || substr($alignment_name, 0, strlen($d[0])) === $d[0]) {
+                                $url = "/apollo/annotator/loadLink?organism=".$d[1]."&";
+                                $found_link = true;
+                                break;
+                            }
+                        }
+                    }
+        
+                    if (!$found_link) {
+                        if (getenv('ENABLE_APOLLO') == "1"){
+                            $url = '/apollo/annotator/loadLink?';
+                        } else {
+                            // Some url was given
+                            $url = getenv('ENABLE_APOLLO');
+                            $url="/apisum";
+                            if (strpos($url, '?') !== false){
+                                $url .= '&';
+                            } else {
+                                $url .= '?';
+                            }
+                        }
+                    }
+        
+                    $feature_loc .= " &nbsp;&nbsp; View in <a href='".$GLOBALS['base_url'].$url."loc=".$alignment_name."%3A".($alignment_min + 1)."..".$alignment_max."'>Apollo</a>";
+                        
+                }
+
+                $alignments[] = $feature_loc;
+            }
+        }
+        if(! $alignments){
+            $content = 'This feature is not located on any sequence.';
+        } else {
+            $content = implode('<br />', $alignments);
+        }
+        
+        $entity->content['data__sequence_coordinates'][0]['#markup'] = $content;
+	}
+}
+*/
+
+
+function redirect_form($form, &$form_state){
+
+    global $base_url;
+
+    $form['options'] = [
+        '#type' => 'fieldset',
+        '#attributes' => [
+            'class' => [
+                'container-inline',
+                'es-cross-site-search-form',
+            ],
+        ],
+    ];
+
+    $default_organism = ['' => 'Any Organism'];
+    $organisms = tripal_elasticsearch_get_gene_search_organisms();
+    $form['options']['organism'] = [
+        '#type' => 'select',
+        '#attributes' => [
+            'id' => 'tripal-elasticsearch-search-category',
+            'style' => 'max-width: 250px;',
+        ],
+        '#options' => array_merge(
+            $default_organism,
+            drupal_map_assoc($organisms)
+        ),
+        '#default_value' => isset($_GET['organism']) ? $_GET['organism'] : '',
+        '#required' => TRUE,
+    ];
+
+    $form['options']['search_term'] = [
+        '#type' => 'textfield',
+        '#size' => '50',
+        '#attributes' => [
+            'placeholder' => t('Search for mRNA or polypeptide.(E,g. Kinase or IPR020405)'),
+            'id' => 'tripal-elasticsearch-search-field',
+        ],
+        '#description' => '',
+        '#required' => TRUE,
+        '#default_value' => isset($_GET['search_term']) ? $_GET['search_term'] : '',
+    ];
+
+    $form['options']['search_button'] = [
+        '#type' => 'submit',
+        '#value' => t('Search'),
+    ];
+
+    $form['#method'] = 'GET';
+    $form['#action'] = $base_url . '/gene_search';
+
+    return $form;
+
+}
+
+function tripal_bipaa_ui_block_info(){
+    $blocks = [];
+
+    $blocks['redirect_block_mini'] = [
+        'info' => t('Redirect form block'),
+        'cache' => DRUPAL_NO_CACHE,
+        'status' => TRUE,
+//        'region' => 'sidebar_first',
+    ];
+
+    return $blocks;
+}
+
+
+function tripal_bipaa_ui_block_view($delta){
+
+    $block = [];
+
+    switch ($delta) {
+        case 'redirect_block_mini':
+            $block['subject'] = '';
+            $form = drupal_get_form('redirect_form');
+            unset($form['options']['organism']);
+            unset($form['options']['search_button']);
+            $block['content'] = $form;
+            break;
+    }    
+
+    return $block;
 }

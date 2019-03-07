@@ -8,6 +8,7 @@
  *
  */
 
+
 function tripal_bipaa_ui_install() {
 
     // Create polypeptide entity
@@ -95,8 +96,6 @@ function tripal_bipaa_ui_install() {
     // Theses blocks would be created later, but we want to place them now, so we create them beforehand
     create_block('menu', 'custom_search', 'sidebar_first', 'bartik');
     create_block('menu', 'custom_search', 'sidebar_first', 'seven');
-    create_block('tripal_elasticsearch', 'elasticsearch_website_search_box', 'sidebar_first', 'bartik', -10);
-    create_block('tripal_elasticsearch', 'elasticsearch_website_search_box', 'sidebar_first', 'seven', -10);
 
     // Disable obsolete blocks
     disable_block('navigation');
@@ -113,20 +112,13 @@ function tripal_bipaa_ui_install() {
     menu_cache_clear_all();
 };
 
-/**
- * Implements hook_modules_enabled($modules).
- *
- * Performs actions when other modules are enabled.
- *
- *
- */
-
 function tripal_bipaa_ui_modules_enabled($modules){
     refresh_fields("polypeptide");
     refresh_fields("mRNA");
     refresh_fields("organism");
     drupal_flush_all_caches();
 };
+
 
 function get_bundle_id($entity_name){
 
