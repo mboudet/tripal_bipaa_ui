@@ -39,18 +39,18 @@ function tripal_bipaa_ui_menu() {
 }
 
 function es_render_form(){
-	$blockObjectInput = block_load('tripal_elasticsearch', 'es_local_gene_search_block');
-	$block = _block_get_renderable_array(_block_render_blocks(array($blockObjectInput)));
+    $blockObjectInput = block_load('tripal_elasticsearch', 'es_local_gene_search_block');
+    $block = _block_get_renderable_array(_block_render_blocks(array($blockObjectInput)));
     $output = drupal_render($block);
-	return $output;
+    return $output;
 }
 
 function render_expression_blocks() {
-        $blockObjectInput = block_load('tripal_analysis_expression', 'input_features');
-        $blockObjectView = block_load('tripal_analysis_expression', 'heatmap_features');
-        $block = _block_get_renderable_array(_block_render_blocks(array($blockObjectInput, $blockObjectView)));
-        $output = drupal_render($block);
-        return $output;
+    $blockObjectInput = block_load('tripal_analysis_expression', 'input_features');
+    $blockObjectView = block_load('tripal_analysis_expression', 'heatmap_features');
+    $block = _block_get_renderable_array(_block_render_blocks(array($blockObjectInput, $blockObjectView)));
+    $output = drupal_render($block);
+    return $output;
 }
 
 /**
