@@ -112,6 +112,14 @@ function tripal_bipaa_ui_install() {
     menu_cache_clear_all();
 };
 
+/**
+ * Implements hook_modules_enabled($modules).
+ *
+ * Performs actions when other modules are enabled.
+ *
+ *
+ */
+
 function tripal_bipaa_ui_modules_enabled($modules){
     refresh_fields("polypeptide");
     refresh_fields("mRNA");
