@@ -69,6 +69,15 @@ function tripal_bipaa_ui_install() {
         ),
     );
 
+    if(getenv("ENABLE_ORTHOLOGY_LINKS")){
+        $new = array(
+            "wrapper_name" => "Orthology",
+            "wrapper_machine_name" =>"orthology",
+            "field_machine_name" => "local__orthology",
+        );
+        array_push($field_list, $new);
+    }
+
     $organism_field_list = array(
         array(
             "wrapper_name" => "GO Reports",

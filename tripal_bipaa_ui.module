@@ -1,5 +1,7 @@
 <?php
 
+require_once "includes/tripal_bipaa_ui.fields.inc";
+
 
 /**
 * Implements hook_menu().
