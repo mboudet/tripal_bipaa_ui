@@ -40,3 +40,19 @@ function tripal_bipaa_ui_form_alter(&$form, &$form_state, $form_id){
             unset($form['heatmap_feature_uniquename']['#description']);
     };
 }
+
+function tripal_bipaa_ui_js_alter(&$javascript){
+
+    $scripts = array(
+        'plotly-latest.min.js' => 'plotly-latest.min.js'
+    );
+
+    $old_script_path = drupal_get_path('module', 'tripal_analysis_expression') . '/theme/js/';
+    $new_script_path = drupal_get_path('module', 'tripal_bipaa_ui') . '/js/';
+
+    foreach($scripts as $key => $value){
+        if(isset($javascript[$old_script_path . $key])){
+            $javascript[$old_script_path . $key]['data'] = $new_script_path . $value;
+        };
+    }
+};
