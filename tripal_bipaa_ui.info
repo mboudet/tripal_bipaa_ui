@@ -1,4 +1,3 @@
 name = Tripal bipaa ui
-description = Module to ease the transition from Tripal2 to Tripal3
+description = Basic module for epxression implementation
 core = 7.x
-stylesheets[all][] = css/tripal_bipaa_ui.css
